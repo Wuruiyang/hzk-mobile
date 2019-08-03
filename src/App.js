@@ -8,7 +8,7 @@ class App extends React.Component {
   render() {
     return (
       <Router>
-        {/* <Redirect exact from="/" to="/home" /> */}
+        <Route exact path="/" component={Home} />
         <Route path="/home" component={Home} />
         <Route path="/city" component={City} />
         <Route path="/map" component={Map} />
