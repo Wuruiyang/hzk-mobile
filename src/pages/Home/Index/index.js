@@ -13,7 +13,6 @@ import { Link } from 'react-router-dom'
 import { Carousel, Flex, Grid } from 'antd-mobile'
 
 import './index.scss'
-import BaseComponent from 'rmc-input-number/lib/base'
 
 // 提取nav
 const navList = [
@@ -78,7 +77,8 @@ class Index extends React.Component {
     // 调用百度地图的api,获取当前城市
     var myCity = new window.BMap.LocalCity()
     myCity.get(async result => {
-      // console.log(result)
+      console.log(result)
+      localStorage.setItem('location', JSON.stringify(result.center))
       // const name = result.name
       // 获取当前城市的详细信息
       const res = await axios.get('http://localhost:8080/area/info', {
@@ -86,6 +86,7 @@ class Index extends React.Component {
           name: result.name
         }
       })
+      console.log(res)
       // 将结果存到本地缓存中, 显示城市名字
       const { status, body } = res.data
       if (status === 200) {
