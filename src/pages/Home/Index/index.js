@@ -9,6 +9,7 @@ import Nav1 from 'assets/images/nav-1.png'
 import Nav2 from 'assets/images/nav-2.png'
 import Nav3 from 'assets/images/nav-3.png'
 import Nav4 from 'assets/images/nav-4.png'
+import { getCurrentCity } from 'utils'
 import { Link } from 'react-router-dom'
 import { Carousel, Flex, Grid } from 'antd-mobile'
 
@@ -69,33 +70,18 @@ class Index extends React.Component {
     }
   }
   // 发送axios,获取数据
-  componentDidMount() {
+  async componentDidMount() {
     this.getSwipers()
     this.getGroups()
     this.getMessages()
 
     // 调用百度地图的api,获取当前城市
-    var myCity = new window.BMap.LocalCity()
-    myCity.get(async result => {
-      console.log(result)
-      localStorage.setItem('location', JSON.stringify(result.center))
-      // const name = result.name
-      // 获取当前城市的详细信息
-      const res = await axios.get('http://localhost:8080/area/info', {
-        params: {
-          name: result.name
-        }
-      })
-      console.log(res)
-      // 将结果存到本地缓存中, 显示城市名字
-      const { status, body } = res.data
-      if (status === 200) {
-        localStorage.setItem('current_city', JSON.stringify(body))
-      }
-      this.setState({
-        cityName: body.label
-      })
+    const body = await getCurrentCity()
+    console.log(body)
+    this.setState({
+      cityName: body.label
     })
+    // })
   }
 
   // 渲染swipers
