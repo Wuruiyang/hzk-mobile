@@ -11,7 +11,7 @@ function getCity() {
   return JSON.parse(localStorage.getItem(CURRENT_CITY))
 }
 // 存到本地
-function setCity(city) {
+export function setCity(city) {
   localStorage.setItem(CURRENT_CITY, JSON.stringify(city))
 }
 

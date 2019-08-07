@@ -1,16 +1,29 @@
+// bug:
+//1. 在使用ScrollToRow的时候,会因为没有加载完全而导致,无法正确跳转
+// 解决办法: 在getCityList元素加载完,就要加载数据measureAllRows
+// 2. 导航跳转时,没有置顶
+// 解决办法: 在List组件中,提供scrollToAlignment="start",使他对准最上面
 import React from 'react'
-import { NavBar, Icon } from 'antd-mobile'
+import { Toast } from 'antd-mobile'
 import Axios from 'axios'
-import { getCurrentCity } from 'utils'
+import { getCurrentCity, setCity } from 'utils'
+import NavHeader from 'common/NavHeader'
 import { List, AutoSizer } from 'react-virtualized'
 import {} from './index.scss'
 const TITLE_HEIGHT = 36
 const CITY_HEIGHT = 50
+const CITYS = ['北京', '上海', '广州', '深圳']
+
 class City extends React.Component {
-  state = {
-    cityObj: {},
-    shortList: [],
-    currentIndex: 0
+  constructor(props) {
+    super(props)
+    this.state = {
+      cityObj: {},
+      shortList: [],
+      currentIndex: 0
+    }
+    // 创建ref
+    this.listRef = React.createRef()
   }
 
   // 这里需要处理成两个数据;
@@ -61,8 +74,21 @@ class City extends React.Component {
     console.log(cityObj, shortList)
   }
 
-  componentDidMount() {
-    this.getCityList()
+  async componentDidMount() {
+    await this.getCityList()
+    // 测量所有的行
+    this.listRef.current.measureAllRows()
+  }
+
+  selectCity(item) {
+    // console.log(item)
+    if (CITYS.includes(item.label)) {
+      setCity(item)
+      this.props.history.go(-1)
+    } else {
+      Toast.info('该城市没有房子,滚蛋', 1, null, false)
+      console.log('no')
+    }
   }
 
   // 每一行的内容,一行是一个字母和该字母下面的内容
@@ -76,7 +102,11 @@ class City extends React.Component {
       <div key={key} style={style} className="city-item">
         <div className="title">{this.formatTitle(letter)}</div>
         {list.map(item => (
-          <div key={item.value} className="name">
+          <div
+            key={item.value}
+            className="name"
+            onClick={this.selectCity.bind(this, item)}
+          >
             {item.label}
           </div>
         ))}
@@ -104,7 +134,11 @@ class City extends React.Component {
     return (
       <ul className="city-index">
         {this.state.shortList.map((item, index) => (
-          <li className="city-index-item" key={item}>
+          <li
+            className="city-index-item"
+            key={item}
+            onClick={this.scrollToRow.bind(this, index)}
+          >
             <span
               className={
                 index === this.state.currentIndex ? 'index-active' : ''
@@ -117,6 +151,17 @@ class City extends React.Component {
       </ul>
     )
   }
+
+  // 点击去往对应的row
+  // refs的使用步骤:1.在constructor上注册
+  // 2. List组件上,提供ref
+  // 3. 需要用到this,所以点击事件需要绑定this
+  scrollToRow(index) {
+    // console.log(index)
+    // console.log(this.listRef)
+    this.listRef.current.scrollToRow(index)
+  }
+
   // 获取当前的高亮
   // startIndex: 表示第几行显示出来了
   // bug: onRowsRendered无法展示,需要在List组件里面,增加一个配置
@@ -132,13 +177,7 @@ class City extends React.Component {
     return (
       <div className="city">
         {/* 顶部导航栏 */}
-        <NavBar
-          mode="light"
-          icon={<Icon type="left" />}
-          onLeftClick={() => this.props.history.go(-1)}
-        >
-          城市列表
-        </NavBar>
+        <NavHeader>城市列表</NavHeader>
 
         {/* 城市列表的渲染  react-virtualized */}
         {/* 
@@ -153,12 +192,14 @@ class City extends React.Component {
         <AutoSizer>
           {({ width, height }) => (
             <List
+              ref={this.listRef}
               width={width}
               height={height}
               rowCount={this.state.shortList.length}
               rowHeight={this.calHeight.bind(this)}
               rowRenderer={this.rowRenderer.bind(this)}
               onRowsRendered={this.onRowsRendered.bind(this)}
+              scrollToAlignment="start"
             />
           )}
         </AutoSizer>
