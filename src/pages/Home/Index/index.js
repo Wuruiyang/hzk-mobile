@@ -77,7 +77,7 @@ class Index extends React.Component {
 
     // 调用百度地图的api,获取当前城市
     const body = await getCurrentCity()
-    console.log(body)
+    // console.log(body)
     this.setState({
       cityName: body.label
     })
