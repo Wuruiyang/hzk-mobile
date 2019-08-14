@@ -5,8 +5,8 @@
 // 解决办法: 在List组件中,提供scrollToAlignment="start",使他对准最上面
 import React from 'react'
 import { Toast } from 'antd-mobile'
-import Axios from 'axios'
 import { getCurrentCity, setCity } from 'utils'
+import { API } from 'utils'
 import NavHeader from 'common/NavHeader'
 import { List, AutoSizer } from 'react-virtualized'
 import {} from './index.scss'
@@ -52,15 +52,15 @@ class City extends React.Component {
   }
 
   async getCityList() {
-    const res = await Axios.get('http://localhost:8080/area/city?level=1')
-    const { body } = res.data
+    const res = await API.get('area/city?level=1')
+    const { body } = res
     // console.log(body)
     const { cityObj, shortList } = this.formatDate(body)
 
     // 获取热门城市,添加至cityList
-    const hotRes = await Axios.get('http://localhost:8080/area/hot')
+    const hotRes = await API.get('area/hot')
     shortList.unshift('hot')
-    cityObj.hot = hotRes.data.body
+    cityObj.hot = hotRes.body
 
     // 获取当前城市,  从utils导入
     const city = await getCurrentCity()

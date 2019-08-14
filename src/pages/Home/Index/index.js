@@ -3,7 +3,7 @@
 // 解决办法: 添加isLoad,使他在axios之后渲染页面
 // 2.控制台一直报错,在你滑动的时候 https://www.jianshu.com/p/04bf173826aa
 import React from 'react'
-import axios from 'axios'
+import { API, BASE_URL } from 'utils'
 // 已经配置了baseUrl,可以直接到根目录
 import Nav1 from 'assets/images/nav-1.png'
 import Nav2 from 'assets/images/nav-2.png'
@@ -12,6 +12,7 @@ import Nav4 from 'assets/images/nav-4.png'
 import { getCurrentCity } from 'utils'
 import { Link } from 'react-router-dom'
 import { Carousel, Flex, Grid } from 'antd-mobile'
+import SearchHeader from 'common/SearchHeader'
 
 import './index.scss'
 
@@ -35,8 +36,8 @@ class Index extends React.Component {
   }
 
   async getSwipers() {
-    const res = await axios.get('http://localhost:8080/home/swiper')
-    const { status, body } = res.data
+    const res = await API.get('home/swiper')
+    const { status, body } = res
     if (status === 200) {
       // 需要用setState来修改数据
       this.setState({
@@ -46,10 +47,8 @@ class Index extends React.Component {
     }
   }
   async getGroups() {
-    const res = await axios.get(
-      'http://localhost:8080/home/groups?area=AREA%7C88cff55c-aaa4-e2e0'
-    )
-    const { status, body } = res.data
+    const res = await API.get('home/groups?area=AREA%7C88cff55c-aaa4-e2e0')
+    const { status, body } = res
     if (status === 200) {
       // 需要用setState来修改数据
       this.setState({
@@ -58,10 +57,8 @@ class Index extends React.Component {
     }
   }
   async getMessages() {
-    const res = await axios.get(
-      'http://localhost:8080/home/news?area=AREA%7C88cff55c-aaa4-e2e0'
-    )
-    const { status, body } = res.data
+    const res = await API.get('home/news?area=AREA%7C88cff55c-aaa4-e2e0')
+    const { status, body } = res
     if (status === 200) {
       // 需要用setState来修改数据
       this.setState({
@@ -102,7 +99,7 @@ class Index extends React.Component {
               }}
             >
               <img
-                src={`http://localhost:8080${item.imgSrc}`}
+                src={`${BASE_URL}${item.imgSrc}`}
                 alt=""
                 style={{ width: '100%', verticalAlign: 'top' }}
                 //
@@ -164,7 +161,7 @@ class Index extends React.Component {
                   <p className="title">{item.title}</p>
                   <span className="info">{item.desc}</span>
                 </div>
-                <img src={`http://localhost:8080${item.imgSrc}`} alt="" />
+                <img src={`${BASE_URL}${item.imgSrc}`} alt="" />
               </Flex>
             )}
           />
@@ -181,11 +178,7 @@ class Index extends React.Component {
         {this.state.messages.map(item => (
           <div key={item.id} className="news-item">
             <div className="imgwrap">
-              <img
-                src={`http://localhost:8080${item.imgSrc}`}
-                alt=""
-                className="img"
-              />
+              <img src={`${BASE_URL}${item.imgSrc}`} alt="" className="img" />
             </div>
             <Flex className="content" direction="column" justify="between">
               <h3 className="title">{item.title}</h3>
@@ -202,30 +195,7 @@ class Index extends React.Component {
 
   // 搜索渲染
   renderSearch() {
-    return (
-      <Flex className="search-box">
-        <Flex className="search-form">
-          <div
-            className="location"
-            onClick={() => this.props.history.push('/city')}
-          >
-            <span className="name">{this.state.cityName}</span>
-            <i className="iconfont icon-arrow" />
-          </div>
-          <div
-            className="search-input"
-            onClick={() => this.props.history.push('/search')}
-          >
-            <i className="iconfont icon-search" />
-            <span className="text">请输入小区的地址</span>
-          </div>
-        </Flex>
-        <i
-          className="iconfont icon-map"
-          onClick={() => this.props.history.push('/map')}
-        />
-      </Flex>
-    )
+    return <SearchHeader cityName={this.state.cityName} />
   }
 
   render() {

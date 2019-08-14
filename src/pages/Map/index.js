@@ -1,8 +1,9 @@
 import React from 'react'
+import { Toast } from 'antd-mobile'
 import { getCurrentCity } from 'utils/index'
 import NavHeader from 'common/NavHeader'
-import Axios from 'axios'
 import styles from './index.module.scss'
+import { API } from 'utils'
 
 // 因为在index.html上引入script
 const BMap = window.BMap
@@ -45,14 +46,16 @@ class Map extends React.Component {
   }
 
   async renderOverlays(value) {
+    Toast.loading('正在加载中...', 0)
     const { type, nextZoom } = this.getTypeAndZoom()
     // 发送ajax获取房源地点
-    const res = await Axios.get(`http://localhost:8080/area/map?id=${value}`)
-    // console.log(res.data.body)
-    res.data.body.forEach(item => {
+    const res = await API.get(`area/map?id=${value}`)
+    // console.log(res.body)
+    res.body.forEach(item => {
       // 确认覆盖物的类型
       this.addOverlay(item, type, nextZoom)
     })
+    Toast.hide()
   }
   getTypeAndZoom() {
     let type, nextZoom
@@ -83,7 +86,6 @@ class Map extends React.Component {
   }
   createCircle(item, nextZoom) {
     const point = new BMap.Point(item.coord.longitude, item.coord.latitude)
-    console.log(point)
 
     const opts = {
       // 文本标注点
@@ -140,19 +142,24 @@ class Map extends React.Component {
       padding: '0px'
     })
     this.map.addOverlay(label)
-    label.addEventListener('click', () => {
-      console.log(item.value)
+    label.addEventListener('click', e => {
+      let x = window.innerWidth / 2 - e.changedTouches[0].clientX
+      let y =
+        (window.innerHeight - 330 - 45) / 2 - (e.changedTouches[0].clientY - 45)
+      console.log(x, y)
+      this.map.panBy(x, y)
       this.getHouses(item.value)
     })
   }
   // 点击方形房子,获取房子信息
   async getHouses(id) {
-    const res = await Axios.get(`http://localhost:8080/houses?cityId=${id}`)
+    Toast.loading('加载中...')
+    const res = await API.get(`houses?cityId=${id}`)
     this.setState({
       isShow: true,
-      houses: res.data.body.list
+      houses: res.body.list
     })
-    console.log(res.data.body.list)
+    Toast.hide()
   }
   renderHouses() {
     // 通过state的houses:[] 来渲染

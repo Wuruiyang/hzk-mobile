@@ -1,7 +1,7 @@
 import React from 'react'
 import { Route } from 'react-router-dom'
 import Index from './Index/index.js'
-import House from './House/index.js'
+import House from './House/index'
 import News from './News/index.js'
 import My from './My/index.js'
 import './index.scss'
