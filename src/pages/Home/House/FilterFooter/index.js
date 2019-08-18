@@ -20,9 +20,12 @@ class FilterPicker extends React.Component {
     onSave: () => {}
   }
   render() {
-    const { onCancel, onSave, className, leftBtn, rightBtn } = this.props
+    const { onCancel, onSave, className, leftBtn, rightBtn, style } = this.props
     return (
-      <Flex className={classnames(styles['filter-footer'], className)}>
+      <Flex
+        style={style}
+        className={classnames(styles['filter-footer'], className)}
+      >
         {/* 取消按钮 */}
         <span className="btn cancel" onClick={onCancel}>
           {leftBtn}

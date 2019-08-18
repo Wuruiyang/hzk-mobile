@@ -1,6 +1,7 @@
 .filter {
   position: relative;
   z-index: 3;
+  height: 40px;
   :global {
     .content {
       position: relative;
