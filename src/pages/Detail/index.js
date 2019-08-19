@@ -4,6 +4,8 @@ import NavHeader from 'common/NavHeader'
 import styles from './index.module.scss'
 import { Carousel, Flex } from 'antd-mobile'
 import classnames from 'classnames'
+
+const BMap = window.BMap
 export default class Detail extends Component {
   state = {
     houseInfo: null
@@ -15,7 +17,42 @@ export default class Detail extends Component {
     this.setState({
       houseInfo: res.body
     })
+
+    // 渲染百度地图 需要传入 小区名 和 经纬度
+    this.renderMap(res.body.community, res.body.coord)
   }
+  // 渲染地图的方法
+  renderMap(community, coord) {
+    const { latitude, longitude } = coord
+    const map = new BMap.Map('map')
+    const point = new BMap.Point(longitude, latitude)
+    map.centerAndZoom(point, 17)
+
+    const label = new BMap.Label(
+      `<span>${community}</span>
+      <div class="mapArrow></div>`,
+      {
+        position: point,
+        offset: new BMap.Size(0, -36)
+      }
+    )
+    label.setStyle({
+      position: 'absolute',
+      zIndex: -7982820,
+      backgroundColor: 'rgb(238, 93, 91)',
+      color: 'rgb(255, 255, 255)',
+      height: 25,
+      padding: '5px 10px',
+      lineHeight: '14px',
+      borderRadius: 3,
+      boxShadow: 'rgb(204, 204, 204) 2px 2px 2px',
+      whiteSpace: 'nowrap',
+      fontSize: 12,
+      userSelect: 'none'
+    })
+    map.addOverlay(label)
+  }
+
   // 渲染标签
   renderTags(tags) {
     return tags.map((item, index) => {
@@ -54,6 +91,7 @@ export default class Detail extends Component {
       <div className={styles.detail}>
         <NavHeader
           className="navHeader"
+          style={{ background: 'transparent' }}
           rightContent={[<i key="share" className="iconfont icon-share" />]}
         >
           {community}
@@ -115,7 +153,34 @@ export default class Detail extends Component {
               </div>
             </Flex.Item>
           </Flex>
+
+          {/* 渲染百度地图 */}
+          <div className="map">
+            <div className="mapTitle">
+              小区：
+              <span>{community}</span>
+            </div>
+            <div className="mapContainer" id="map">
+              地图
+            </div>
+          </div>
         </div>
+        <Flex className="fixedBottom">
+          <Flex.Item onClick={this.handleFavorite}>
+            <img
+              src={BASE_URL + '/img/unstar.png'}
+              className="favoriteImg"
+              alt="收藏"
+            />
+            <span className="favorite">收藏</span>
+          </Flex.Item>
+          <Flex.Item>在线咨询</Flex.Item>
+          <Flex.Item>
+            <a href="tel:400-618-4000" className="telephone">
+              电话预约
+            </a>
+          </Flex.Item>
+        </Flex>
       </div>
     )
   }

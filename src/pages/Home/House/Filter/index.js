@@ -173,7 +173,6 @@ class Filter extends React.Component {
       selectedValues
     } = this.state
     const data = { characteristic, floor, oriented, roomType }
-
     return (
       <FilterMore
         {...data}

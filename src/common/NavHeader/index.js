@@ -8,11 +8,13 @@ import styles from './index.module.scss'
 
 class NavHeader extends React.Component {
   static propTypes = {
-    children: PropTypes.string.isRequired
+    children: PropTypes.string.isRequired,
+    style: PropTypes.object
   }
   render() {
     return (
       <NavBar
+        style={this.props.style}
         className={styles.navBar}
         mode="light"
         icon={<i className="iconfont icon-back" />}
