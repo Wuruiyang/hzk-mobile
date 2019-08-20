@@ -82,7 +82,16 @@ const config = {
     if (status === 200) {
       Toast.info(description, 1)
       setToken(body.token)
-      formikBag.props.history.go(-1)
+
+      // 判断是否有 form
+      // 有 -> replace到form
+      // 没有 -> 返回 go(-1)
+      const { state } = formikBag.props.location
+      if (state) {
+        formikBag.props.history.replace(state.from.pathname)
+      } else {
+        formikBag.props.history.go(-1)
+      }
     } else {
       Toast.info(description, 1)
     }

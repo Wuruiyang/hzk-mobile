@@ -1,14 +1,15 @@
 import React, { Component } from 'react'
-import { API, BASE_URL } from 'utils'
+import { API, BASE_URL, hasToken } from 'utils'
 import NavHeader from 'common/NavHeader'
 import styles from './index.module.scss'
-import { Carousel, Flex } from 'antd-mobile'
+import { Carousel, Flex, Modal, Toast } from 'antd-mobile'
 import classnames from 'classnames'
 
 const BMap = window.BMap
 export default class Detail extends Component {
   state = {
-    houseInfo: null
+    houseInfo: null,
+    isFavorite: false
   }
   async componentDidMount() {
     const id = this.props.match.params.id
@@ -20,7 +21,18 @@ export default class Detail extends Component {
 
     // 渲染百度地图 需要传入 小区名 和 经纬度
     this.renderMap(res.body.community, res.body.coord)
+
+    this.checkFavorite(id)
   }
+
+  // 校验是否是 喜欢
+  checkFavorite = async id => {
+    const res = await API.get(`user/favorites/${id}`)
+    this.setState({
+      isFavorite: res.body.isFavorite
+    })
+  }
+
   // 渲染地图的方法
   renderMap(community, coord) {
     const { latitude, longitude } = coord
@@ -71,6 +83,63 @@ export default class Detail extends Component {
       )
     })
   }
+
+  // 收藏功能
+  handleFavorite = async () => {
+    console.log(11)
+    // 检验是否登录,若没有 去登陆
+    if (!hasToken()) {
+      return Modal.alert('提示', '登录才能收藏房源,去登陆了?', [
+        { text: '取消' },
+        {
+          text: '确定',
+          onPress: () => {
+            this.props.history.push('/login', { from: this.props.location })
+          }
+        }
+      ])
+    }
+    // 已收藏的
+    if (this.state.isFavorite) {
+      const res = await API.delete(`user/favorites/${this.id}`)
+      if (res.status === 200) {
+        Toast.success('取消收藏')
+        this.setState({
+          isFavorite: false
+        })
+      } else {
+        Modal.alert('提示', 'token过期了，是否去登录?', [
+          { text: '取消' },
+          {
+            text: '确定',
+            onPress: () => {
+              this.props.history.push('/login', { from: this.props.location })
+            }
+          }
+        ])
+      }
+    } else {
+      // 没有收藏
+      const res = await API.post(`user/favorites/${this.id}`)
+      if (res.status === 200) {
+        Toast.success('添加收藏')
+        this.setState({
+          isFavorite: true
+        })
+      } else {
+        Modal.alert('提示', 'token过期了，是否去登录?', [
+          { text: '取消' },
+          {
+            text: '确定',
+            onPress: () => {
+              this.props.history.push('/login', { from: this.props.location })
+            }
+          }
+        ])
+      }
+    }
+  }
+
   render() {
     const { houseInfo } = this.state
     if (!houseInfo) {
@@ -168,12 +237,18 @@ export default class Detail extends Component {
         <Flex className="fixedBottom">
           <Flex.Item onClick={this.handleFavorite}>
             <img
-              src={BASE_URL + '/img/unstar.png'}
+              src={
+                BASE_URL +
+                (this.state.isFavorite ? '/img/star.png' : '/img/unstar.png')
+              }
               className="favoriteImg"
-              alt="收藏"
+              alt={this.state.isFavorite ? '已收藏' : '收藏'}
             />
-            <span className="favorite">收藏</span>
+            <span className="favorite">
+              {this.state.isFavorite ? '已收藏' : '收藏'}
+            </span>
           </Flex.Item>
+
           <Flex.Item>在线咨询</Flex.Item>
           <Flex.Item>
             <a href="tel:400-618-4000" className="telephone">

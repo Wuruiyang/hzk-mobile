@@ -21,7 +21,7 @@ const navList = [
   { title: '整租', img: Nav1, path: '/home/house' },
   { title: '合租', img: Nav2, path: '/home/house' },
   { title: '地图找房', img: Nav3, path: '/map' },
-  { title: '去出租', img: Nav4, path: '/rent' }
+  { title: '去出租', img: Nav4, path: '/rent/add' }
 ]
 
 class Index extends React.Component {

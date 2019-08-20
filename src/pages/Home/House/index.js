@@ -34,10 +34,10 @@ class House extends React.Component {
       currentValue: res.value
     })
   }
-  componentDidMount() {
-    this.getAndSetCity()
+  async componentDidMount() {
+    await this.getAndSetCity()
     // 发送ajax请求
-    this.getHouseList()
+    await this.getHouseList()
   }
   onFileter = values => {
     const filters = this.formatFilters(values)
@@ -76,8 +76,9 @@ class House extends React.Component {
     return filters
   }
   // axios 根据条件获取对应的房屋数据
-  async getHouseList(start = 1, end = 30) {
+  getHouseList = async (start = 1, end = 30) => {
     Toast.loading('加载中...', 0)
+    console.log(this.state)
     // const { value } = await getCurrentCity()
     const res = await API.get('houses', {
       params: {

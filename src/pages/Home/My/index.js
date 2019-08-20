@@ -7,7 +7,7 @@ import styles from './index.module.scss'
 // 菜单数据
 const menus = [
   { id: 1, name: '我的收藏', iconfont: 'icon-coll', to: '/favorate' },
-  { id: 2, name: '我的出租', iconfont: 'icon-ind', to: '/rent' },
+  { id: 2, name: '我的出租', iconfont: 'icon-ind', to: '/rent/add' },
   { id: 3, name: '看房记录', iconfont: 'icon-record' },
   {
     id: 4,
@@ -28,16 +28,12 @@ export default class My extends Component {
   }
 
   async getUserInfo() {
-    const res = await API.get('user', {
-      headers: {
-        authorization: getToken()
-      }
-    })
+    const res = await API.get('user')
     if (res.status === 200) {
       this.setState({
         userInfo: res.body
       })
-      console.log(res.body)
+      // console.log(res.body)
     } else if (res.status === 400) {
       // 请求失败，  token过期  token无效
       removeToken()
@@ -65,7 +61,6 @@ export default class My extends Component {
       {
         text: '确定',
         onPress: async () => {
-          console.log('11')
           // 发送请求退出
 
           await API.post('user/logout', {
@@ -74,7 +69,6 @@ export default class My extends Component {
             }
           })
 
-          console.log('222')
           // 移除token
           removeToken()
           // 重置状态
